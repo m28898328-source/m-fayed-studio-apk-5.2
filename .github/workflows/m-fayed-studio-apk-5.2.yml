@@ -15,6 +15,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Extract Project
+        run: |
+          mkdir source
+          unzip -q *.zip -d source
+
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
@@ -26,13 +31,16 @@ jobs:
           distribution: temurin
           java-version: 17
 
-      - name: Install dependencies
+      - name: Install Dependencies
+        working-directory: source/m-fayed-studio-apk
         run: npm install
 
       - name: Add Android
+        working-directory: source/m-fayed-studio-apk
         run: npx cap add android
 
-      - name: Copy native files and icons
+      - name: Copy Native Files and Icons
+        working-directory: source/m-fayed-studio-apk
         run: |
           D=android/app/src/main/java/com/mfayed/studio
           mkdir -p $D
@@ -40,9 +48,11 @@ jobs:
           cp -r icons-res/* android/app/src/main/res/
 
       - name: Sync Android
+        working-directory: source/m-fayed-studio-apk
         run: npx cap sync android
 
       - name: Build APK
+        working-directory: source/m-fayed-studio-apk
         run: |
           cd android
           chmod +x gradlew
@@ -52,4 +62,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: M-Fayed-Studio-5.2
-          path: android/app/build/outputs/apk/debug/app-debug.apk
+          path: source/m-fayed-studio-apk/android/app/build/outputs/apk/debug/app-debug.apk
